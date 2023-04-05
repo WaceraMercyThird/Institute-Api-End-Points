@@ -16,6 +16,12 @@ public class ApiDbContext : DbContext
     {
         throw new NotImplementedException();
     }
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Student>().HasIndex(p => p.Name).IsUnique();
+
+        modelBuilder.Entity<Student>().Property(p => p.Name).HasMaxLength(30);
+    }
 }
 
 

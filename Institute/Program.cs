@@ -11,12 +11,13 @@ var builder = WebApplication.CreateBuilder(args);
 //serilog
 Log.Logger = new LoggerConfiguration()
                .WriteTo.File
-               (path: "/Users/mwacera/Decuments/Logs/INSTITUTELAPILOGS-.txt",
+               (path: "C:\\Users\\mwacera\\Documents\\INSTITUTELAPILOGS-.txt",
                              outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm,ss.fff zzz}[{Level:u3}] {Message:lj}{NewLine}{Exception}",
                             rollingInterval: RollingInterval.Day,
                              restrictedToMinimumLevel: LogEventLevel.Information).CreateLogger();
 
 // Add services to the container.
+builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
 builder.Services.AddScoped<IStudentService, StudentService>();

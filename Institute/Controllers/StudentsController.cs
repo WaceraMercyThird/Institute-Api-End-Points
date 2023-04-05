@@ -1,9 +1,10 @@
 #nullable disable
 using Institute.Datas.Models;
 using Institute.Datas.Services;
+using Institute.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
+using Newtonsoft.Json;
 
 namespace Institute.Controllers;
 
@@ -22,11 +23,11 @@ public class StudentsController : Controller
         _context = context;
         _logger = logger;
     }
-    
+
     [HttpGet]
     public async Task<List<Student>> GetStudents()
     {
-        _logger.LogInformation("Serilog works on get apis");
+        _logger.LogError("Serilog works on get apis");
 
         try
         {
@@ -34,12 +35,12 @@ public class StudentsController : Controller
         }
         catch (Exception e)
         {
-            _logger.LogInformation($"{e.Message}");
+            _logger.LogError($"{e.Message}");
             throw;
         }
-        
+
     }
-    
+
     [HttpGet("{id}")]
     public async Task<ActionResult<Student>> GetStudentbyId(Guid id)
     {
@@ -49,13 +50,13 @@ public class StudentsController : Controller
         }
         try
         {
-   var student = await _IStudentService.GetStudent(id);
-        if (student == null)
-        {
-            return NotFound();
-        }
+            var student = await _IStudentService.GetStudent(id);
+            if (student == null)
+            {
+                return NotFound();
+            }
 
-        return student;
+            return student;
         }
         catch (Exception e)
         {
@@ -63,33 +64,46 @@ public class StudentsController : Controller
             throw;
         }
 
-     
+
     }
 
-   
+
 
     [HttpPost]
-    public ActionResult<Student> CreateStudent(Student student)
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    public async Task<ActionResult<Student>> CreateStudent(StudentDto student)
     {
         if (!ModelState.IsValid)
-            {
-                return StatusCode(400);
-            }
-
-            try
-            {
-                 _context.Students.Add(student);
-
-                 _context.SaveChanges();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
+        {
+            return StatusCode(400);
+        }
 
 
-            return CreatedAtAction(nameof(GetStudentbyId), new { id = student.Id }, student);
+
+        Student stud = new Student()
+        {
+            Id = Guid.NewGuid(),
+            Name = student.Name,
+            Age = student.Age,
+            ClassRoom = student.ClassRoom
+        };
+
+        try
+        {
+            await _context.Students.AddAsync(stud);
+
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(JsonConvert.SerializeObject(e));
+
+             return StatusCode(500);
+        }
+
+        return CreatedAtAction(nameof(GetStudentbyId), new { id = stud.Id }, student);
+
 
     }
 
@@ -106,8 +120,8 @@ public class StudentsController : Controller
             {
                 return NotFound();
             }
-                
-             _context.SaveChanges();
+
+            _context.SaveChanges();
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -127,31 +141,32 @@ public class StudentsController : Controller
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTodoItem(Guid id)
     {
-        if(_context.Students == null)
+        if (_context.Students == null)
         {
             return NotFound();
         }
+        _logger.LogError("Serilog from delete method works");
         try
         {
-             var todoItem = await _context.Students.FindAsync(id);
+            var todoItem = await _context.Students.FindAsync(id);
 
-        if (todoItem == null)
-        {
-            return NotFound();
-        }
+            if (todoItem == null)
+            {
+                return NotFound();
+            }
 
-        _context.Students.Remove(todoItem);
+            _context.Students.Remove(todoItem);
 
-        await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
-        return NoContent();
+            return NoContent();
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            _logger.LogError(JsonConvert.SerializeObject(e.Message));
             throw;
         }
-       
+
     }
     private bool StudentExist(Guid id)
     {
