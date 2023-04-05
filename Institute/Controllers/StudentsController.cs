@@ -86,7 +86,8 @@ public class StudentsController : Controller
             Id = Guid.NewGuid(),
             Name = student.Name,
             Age = student.Age,
-            ClassRoom = student.ClassRoom
+            ClassRoom = student.ClassRoom,
+            Grades= student.Grades
         };
 
         try
