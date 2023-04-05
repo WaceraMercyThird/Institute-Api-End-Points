@@ -1,8 +1,20 @@
 using Microsoft.EntityFrameworkCore;
-using Institute.Datas.Models;
 using Institute.Datas.Services;
+using Institute;
+using Serilog;
+using Serilog.Events;
+
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+//serilog
+Log.Logger = new LoggerConfiguration()
+               .WriteTo.File
+               (path: "/Users/mwacera/Decuments/Logs/INSTITUTELAPILOGS-.txt",
+                             outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm,ss.fff zzz}[{Level:u3}] {Message:lj}{NewLine}{Exception}",
+                            rollingInterval: RollingInterval.Day,
+                             restrictedToMinimumLevel: LogEventLevel.Information).CreateLogger();
 
 // Add services to the container.
 
@@ -12,9 +24,7 @@ builder.Services.AddScoped<IStudentService, StudentService>();
 
 
 builder.Services.AddDbContext<ApiDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("StudentDbContext")));
-/*builder.Services.AddDbContext<InstituteDbContext>(opt =>
-    opt.UseInMemoryDatabase("institute"));*/
+    options.UseSqlServer(builder.Configuration.GetConnectionString("InstituteDbContext")));
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

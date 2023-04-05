@@ -1,3 +1,4 @@
+#nullable disable
 using Institute.Datas.Models;
 using Institute.Datas.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -12,17 +13,31 @@ public class StudentsController : Controller
 {
     public readonly IStudentService _IStudentService;
     public readonly ApiDbContext _context;
+    private readonly ILogger<Student> _logger;
 
-    public StudentsController(IStudentService service, ApiDbContext context)
+    public StudentsController(IStudentService service, ApiDbContext context, ILogger<Student> logger
+        )
     {
         _IStudentService = service;
         _context = context;
+        _logger = logger;
     }
     
     [HttpGet]
     public async Task<List<Student>> GetStudents()
     {
-        return await _IStudentService.GetStudents();
+        _logger.LogInformation("Serilog works on get apis");
+
+        try
+        {
+            return await _IStudentService.GetStudents();
+        }
+        catch (Exception e)
+        {
+            _logger.LogInformation($"{e.Message}");
+            throw;
+        }
+        
     }
     
     [HttpGet("{id}")]
@@ -32,37 +47,49 @@ public class StudentsController : Controller
         {
             return NotFound();
         }
-        var student = await _IStudentService.GetStudent(id);
+        try
+        {
+   var student = await _IStudentService.GetStudent(id);
         if (student == null)
         {
             return NotFound();
         }
 
         return student;
-    }
-
-    [HttpPost]
-    public async Task<ActionResult<Student>> CreateStudent(Student student)
-    {
-        if (! ModelState.IsValid)
-        {
-            return StatusCode(400);
-        }
-
-        try
-        {
-            await _context.Students.AddAsync(student);
-        
-            await _context.SaveChangesAsync();
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
             throw;
         }
+
+     
+    }
+
    
-        
-        return CreatedAtAction(nameof(GetStudentbyId), new { id = student.Id }, student);
+
+    [HttpPost]
+    public ActionResult<Student> CreateStudent(Student student)
+    {
+        if (!ModelState.IsValid)
+            {
+                return StatusCode(400);
+            }
+
+            try
+            {
+                 _context.Students.Add(student);
+
+                 _context.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+
+
+            return CreatedAtAction(nameof(GetStudentbyId), new { id = student.Id }, student);
 
     }
 
@@ -71,16 +98,16 @@ public class StudentsController : Controller
     {
         _context.Entry(student).State = EntityState.Modified;
 
+        _logger.LogInformation("Serilog works on put apis");
+
         try
         {
             if (id != student.Id)
             {
                 return NotFound();
             }
-
-             
                 
-            await _context.SaveChangesAsync();
+             _context.SaveChanges();
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -90,6 +117,7 @@ public class StudentsController : Controller
             }
             else
             {
+                _logger.LogInformation($"Student exist {id}");
                 throw;
             }
         }
@@ -103,16 +131,27 @@ public class StudentsController : Controller
         {
             return NotFound();
         }
-        var todoItem = await _context.Students.FindAsync(id);
+        try
+        {
+             var todoItem = await _context.Students.FindAsync(id);
+
         if (todoItem == null)
         {
             return NotFound();
         }
 
         _context.Students.Remove(todoItem);
+
         await _context.SaveChangesAsync();
 
         return NoContent();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+       
     }
     private bool StudentExist(Guid id)
     {

@@ -1,4 +1,4 @@
-
+#nullable disable
 namespace Institute.Datas.Models
 {
   public class Student

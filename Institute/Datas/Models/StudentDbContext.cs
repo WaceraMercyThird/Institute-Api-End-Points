@@ -1,15 +1,21 @@
+#nullable disable
+using Institute.Datas.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Institute.Datas.Models;
+namespace Institute;
 
 public class ApiDbContext : DbContext
 {
-    public ApiDbContext(DbContextOptions<ApiDbContext> options, DbSet<Student> students) : base(options)
+    public ApiDbContext(DbContextOptions<ApiDbContext> options) : base(options)
     {
-        Students = students;
     }
 
     public DbSet<Student> Students { get; set; }
+
+    internal Task GetStudent(Guid id)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 
