@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace Institute.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/[controller]/[action]")]
 [ApiController]
 public class StudentsController : Controller
 {
@@ -22,6 +22,8 @@ public class StudentsController : Controller
         _IStudentService = service;
         _context = context;
         _logger = logger;
+
+
     }
 
     [HttpGet]
@@ -31,7 +33,8 @@ public class StudentsController : Controller
 
         try
         {
-            return await _IStudentService.GetStudents();
+            var students = await _IStudentService.GetStudents();
+            return students;
         }
         catch (Exception e)
         {
@@ -41,8 +44,8 @@ public class StudentsController : Controller
 
     }
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<Student>> GetStudentbyId(Guid id)
+    [HttpGet]
+    public async Task<ActionResult<StudentDisplayInfo>> GetStudentbyId(Guid id)
     {
         if (_context.Students == null)
         {
@@ -51,24 +54,30 @@ public class StudentsController : Controller
         try
         {
             var student = await _IStudentService.GetStudent(id);
+
+            var studentToDisplay = new StudentDisplayInfo()
+            {
+                Name = student.Name,
+                Age = student.Age,
+                ClassRoom= student.ClassRoom,
+                Grades= student.Grades,
+              
+
+            };
+
             if (student == null)
             {
                 return NotFound();
             }
 
-            return student;
+            return studentToDisplay;
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
             throw;
         }
-
-
     }
-
-
-
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -79,15 +88,13 @@ public class StudentsController : Controller
             return StatusCode(400);
         }
 
-
-
         Student stud = new Student()
         {
             Id = Guid.NewGuid(),
             Name = student.Name,
             Age = student.Age,
             ClassRoom = student.ClassRoom,
-            Grades= student.Grades
+            Grades = student.Grades
         };
 
         try
@@ -100,7 +107,7 @@ public class StudentsController : Controller
         {
             _logger.LogError(JsonConvert.SerializeObject(e));
 
-             return StatusCode(500);
+            return StatusCode(500);
         }
 
         return CreatedAtAction(nameof(GetStudentbyId), new { id = stud.Id }, student);
@@ -173,4 +180,8 @@ public class StudentsController : Controller
     {
         return (_context.Students?.Any(e => e.Id == id)).GetValueOrDefault();
     }
+
 }
+
+
+
