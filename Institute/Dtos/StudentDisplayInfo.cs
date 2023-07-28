@@ -7,9 +7,17 @@ namespace Institute.Dtos
 
         
             public string Name { get; set; }
-            public int Age { get; set; }
+        public int age { get; set; }
             public string ClassRoom { get; set; }
             public int Grades { get; set; }
+
+        public class Person
+        {
+            public string firstName { get; set; }
+            public string lastname { get; set; }
+        }
+           
+        
         
     }
 }

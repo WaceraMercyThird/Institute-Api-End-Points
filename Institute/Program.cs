@@ -3,7 +3,11 @@ using Institute.Datas.Services;
 using Institute;
 using Serilog;
 using Serilog.Events;
-
+using Institute.Helper;
+using Akka.Actor;
+using Institute.Actor;
+using Akka.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 //serilog
 Log.Logger = new LoggerConfiguration()
                .WriteTo.File
-               (path: "C:\\Users\\mwacera\\Documents\\Workspace\\Practice\\Debug\\Apis\\INSTITUTELAPILOGS-.txt",
+               (path: "C:\\Temp\\INSTITUTELAPILOGS-.txt",
                              outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm,ss.fff zzz}[{Level:u3}] {Message:lj}{NewLine}{Exception}",
                             rollingInterval: RollingInterval.Day,
                              restrictedToMinimumLevel: LogEventLevel.Information).CreateLogger();
@@ -21,8 +25,13 @@ builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
 builder.Services.AddScoped<IStudentService, StudentService>();
-builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddAutoMapper(typeof(ApplicationMapper));
 
+// Set up the ActorSystem and create an actor
+var actorSystem = ActorSystem.Create("MyActorSystem");
+builder.Services.AddSingleton(actorSystem);
+builder.Services.AddSingleton<IActorRefFactory>(actorSystem);
+builder.Services.AddSingleton<EmailActor>();
 
 
 
@@ -50,4 +59,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-

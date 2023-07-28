@@ -9,5 +9,7 @@ namespace Institute.Dtos
         public int Age { get; set; }
         public string ClassRoom { get; set; }
         public int Grades { get; set; }
+        public string Textbook { get; set;}
+       
     }
 }
