@@ -1,10 +1,8 @@
-using Institute.Actor;
 using Institute.Datas.Models;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PdfSharp.Drawing;
-using PdfSharp.Pdf;
-using System.Xml.Linq;
+using PdfSharpCore.Drawing;
+using PdfSharpCore.Pdf;
+
 
 namespace Institute.Datas.Services;
 

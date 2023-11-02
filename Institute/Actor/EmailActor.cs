@@ -45,7 +45,7 @@ namespace Institute.Actor
         private async Task SendReportAsync(byte[] pdfBytes, string recipientEmail)
         {
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress("Rigoberto Treutel", "rigoberto.treutel@ethereal.email"));
+            message.From.Add(new MailboxAddress("Ben Bartoletti", "ben.bartoletti@ethereal.email"));
             message.To.Add(new MailboxAddress(string.Empty, recipientEmail));
 
             message.Subject = "PDF Document";
@@ -68,7 +68,7 @@ namespace Institute.Actor
                 try
                 {
                     await client.ConnectAsync("smtp.ethereal.email", 587, SecureSocketOptions.StartTls);
-                    await client.AuthenticateAsync("rigoberto.treutel@ethereal.email", "N7xXyHWr3XWWUeNUaE");
+                    await client.AuthenticateAsync("ben.bartoletti@ethereal.email", "ryK43QqwQekdEFpEP8");
 
 
                     await client.SendAsync(message);

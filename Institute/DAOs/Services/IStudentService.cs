@@ -1,7 +1,4 @@
 using Institute.Datas.Models;
-using PdfSharp.Drawing;
-using PdfSharp.Pdf;
-using System.Transactions;
 
 namespace Institute.Datas.Services;
 
